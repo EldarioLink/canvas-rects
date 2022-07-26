@@ -1,19 +1,64 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <v-stage ref="stage" :config="stageSize">
+      <v-layer ref="layer">
+        <v-rect
+          @dragstart="handleDragStart"
+          @dragend="handleDragEnd"
+          @click="openWindow"
+          :config="{
+            x: 50,
+            y: 50,
+            width: 100,
+            height: 100,
+            draggable: true,
+            stroke: 'black',
+            strokeWidth: 4,
+          }"
+        >
+        </v-rect>
+      </v-layer>
+    </v-stage>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+const width = window.innerWidth;
+const height = window.innerHeight;
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  data() {
+    return {
+      stageSize: {
+        width: width,
+        height: height,
+      },
+      isDragging: false,
+      // isOpen: false,
+      items: [
+        { title: "Click Me" },
+        { title: "Click Me" },
+        { title: "Click Me" },
+        { title: "Click Me 2" },
+      ],
+    };
+  },
+  methods: {
+    handleDragStart() {
+      this.isDragging = true;
+    },
+    handleDragEnd() {
+      this.isDragging = false;
+    },
+    handleWindow() {
+      console.log("click");
+    },
+    openWindow() {
+      console.log("click");
+      // this.isOpen != this.isOpen;
+    },
+  },
+};
 </script>
 
 <style>
@@ -23,6 +68,10 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 </style>
