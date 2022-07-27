@@ -1,8 +1,11 @@
 <template>
   <div id="app">
-    <button @click="addRect">Добавить</button>
-    <hr />
-    <button @click="deleteRects">Очистить</button>
+    <div>
+      <button @click="addRect">Добавить</button>
+      <button @click="deleteRects">Очистить</button>
+      <button @click="saveLocal">Сохранить</button>
+      <button @click="restoreLocal">Восстановить</button>
+    </div>
 
     <v-stage ref="stage" :config="stageSize">
       <v-layer ref="layer">
@@ -13,7 +16,7 @@
           :config="{ draggable: true }"
         >
           <v-rect
-            ref="item.id"
+            ref="rect"
             :config="{
               x: item.x,
               y: item.y,
@@ -26,36 +29,11 @@
           >
           </v-rect>
           <v-circle
+            v-for="el in getNodes.slice(0, item.activeNodes)"
+            :key="el.id"
             :config="{
-              x: item.x + 51,
-              y: item.y - 5,
-              radius: 10,
-              fill: 'black',
-              draggable: false,
-            }"
-          />
-          <v-circle
-            :config="{
-              x: item.x + 51,
-              y: item.y + 105,
-              radius: 10,
-              fill: 'black',
-              draggable: false,
-            }"
-          />
-          <v-circle
-            :config="{
-              x: item.x + 104,
-              y: item.y + 51,
-              radius: 10,
-              fill: 'black',
-              draggable: false,
-            }"
-          />
-          <v-circle
-            :config="{
-              x: item.x - 4,
-              y: item.y + 51,
+              x: item.x + el.x,
+              y: item.y + el.y,
               radius: 10,
               fill: 'black',
               draggable: false,
@@ -66,7 +44,8 @@
     </v-stage>
     <div id="menu">
       <div>
-        <button>1</button><button>2</button><button>3</button><button>4</button
+        <button id="oneNode">1</button><button id="twoNode">2</button
+        ><button id="threeNode">3</button><button id="fourNode">4</button
         ><button id="delete-button">Delete</button>
       </div>
     </div>
@@ -86,8 +65,6 @@ export default {
         height: height,
       },
       isDragging: false,
-      nodeCounter: 0,
-      nodeArray: [],
     };
   },
   methods: {
@@ -97,31 +74,100 @@ export default {
     handleDragEnd() {
       this.isDragging = false;
     },
-    handleWindow() {
-      console.log("click");
-    },
-    openMenu() {
-      console.log("click");
-    },
     addRect() {
+      let xPos = Math.random() * width;
+      let yPos = Math.random() * height;
+
       this.rectsList.push({
         id: Math.round(Math.random() * 10000).toString(),
-        x: Math.random() * width,
-        y: Math.random() * height - 100,
+        x: xPos >= width - 150 ? Math.random() * width : xPos,
+        y: yPos >= height - 150 ? Math.random() * height : yPos,
+        activeNodes: 1,
       });
     },
     deleteRects() {
       this.rectsList = [];
     },
+    saveLocal() {
+      // to do this
+    },
+    restoreLocal() {
+      // to do this
+    },
+  },
+  computed: {
+    getNodes() {
+      let rectNodes = [
+        {
+          id: Math.round(Math.random() * 10000).toString(),
+          x: +51,
+          y: -5,
+          radius: 10,
+          fill: "black",
+          draggable: false,
+        },
+
+        {
+          id: Math.round(Math.random() * 10000).toString(),
+          x: -4,
+          y: +51,
+          radius: 10,
+          fill: "black",
+          draggable: false,
+        },
+        {
+          id: Math.round(Math.random() * 10000).toString(),
+          x: +51,
+          y: +105,
+          radius: 10,
+          fill: "black",
+          draggable: false,
+        },
+        {
+          id: Math.round(Math.random() * 10000).toString(),
+          x: +104,
+          y: +51,
+          radius: 10,
+          fill: "black",
+          draggable: false,
+        },
+      ];
+      return rectNodes;
+    },
   },
   mounted() {
     const stage = this.$refs.stage.getNode();
+
     // setup menu
     var menuNode = document.getElementById("menu");
     let currentShape;
-
+    let currentShapeId;
     document.getElementById("delete-button").addEventListener("click", () => {
       currentShape.removeChildren();
+    });
+
+    document.getElementById("oneNode").addEventListener("click", () => {
+      this.rectsList = this.rectsList.map((rect) =>
+        rect.id === currentShapeId ? { ...rect, activeNodes: 1 } : rect
+      );
+    });
+
+    document.getElementById("twoNode").addEventListener("click", () => {
+      this.rectsList = this.rectsList.map((rect) =>
+        rect.id === currentShapeId ? { ...rect, activeNodes: 2 } : rect
+      );
+    });
+
+    document.getElementById("threeNode").addEventListener("click", () => {
+      this.rectsList = this.rectsList.map((rect) =>
+        rect.id === currentShapeId ? { ...rect, activeNodes: 3 } : rect
+      );
+    });
+
+    document.getElementById("fourNode").addEventListener("click", () => {
+      this.rectsList = this.rectsList.map((rect) =>
+        rect.id === currentShapeId ? { ...rect, activeNodes: 4 } : rect
+      );
     });
 
     window.addEventListener("click", () => {
@@ -137,8 +183,12 @@ export default {
         // if we are on empty place of the stage we will do nothing
         return;
       }
-      console.log(e.target);
+
       currentShape = e.target.parent;
+      currentShapeId = currentShape.children[0].attrs.id;
+
+      console.log("target", e.evt);
+
       // console.log("currentshape", group);
       // show menu
       menuNode.style.display = "initial";
