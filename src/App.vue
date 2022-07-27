@@ -9,6 +9,14 @@
 
     <v-stage ref="stage" :config="stageSize">
       <v-layer ref="layer">
+        <v-line
+          v-for="line in connections"
+          :key="line.id"
+          :config="{
+            stroke: 'black',
+            points: line.points,
+          }"
+        />
         <v-group
           v-for="item in rectsList"
           :key="item.id"
@@ -31,11 +39,13 @@
           <v-circle
             v-for="el in getNodes.slice(0, item.activeNodes)"
             :key="el.id"
+            @click="startLine"
             :config="{
               x: item.x + el.x,
               y: item.y + el.y,
               radius: 10,
-              fill: 'black',
+              // eslint-disable-next-line vue/no-parsing-error
+              fill: `green`,
               draggable: false,
             }"
           />
@@ -65,6 +75,9 @@ export default {
         height: height,
       },
       isDragging: false,
+      connections: [],
+      drawningLine: false,
+      fromShapeId: null,
     };
   },
   methods: {
@@ -88,6 +101,52 @@ export default {
     deleteRects() {
       this.rectsList = [];
     },
+    startLine(e) {
+      // eslint-disable-next-line no-undef
+      const onCircle = e.target instanceof Konva.Circle;
+      if (!onCircle) {
+        return;
+      }
+      console.log("fdfd");
+      if (this.fromShapeId) {
+        const newConnector = {
+          from: e.target.x(),
+          to: e.target.y(),
+          id: this.connectors.length,
+        };
+        this.connectors.push(newConnector);
+        this.setFromShapeId = null;
+      } else {
+        this.setFromShapeId = e.target.x();
+      }
+    },
+    // handleMouseDown(e) {
+    //   // eslint-disable-next-line no-undef
+    //   const onCircle = e.target instanceof Konva.Circle;
+    //   if (!onCircle) {
+    //     return;
+    //   }
+    //   this.drawningLine = true;
+    //   this.connections.push({
+    //     id: Date.now(),
+    //     points: [e.target.x(), e.target.y()],
+    //   });
+    // },
+    // handleMouseUp(e) {
+    //   // eslint-disable-next-line no-undef
+    //   const onCircle = e.target instanceof Konva.Circle;
+    //   if (!onCircle) {
+    //     return;
+    //   }
+    //   this.drawningLine = false;
+    //   const lastLine = this.connections[this.connections.length - 1];
+    //   lastLine.points = [
+    //     lastLine.points[0],
+    //     lastLine.points[1],
+    //     e.target.x(),
+    //     e.target.y(),
+    //   ];
+    // },
     saveLocal() {
       // to do this
     },
