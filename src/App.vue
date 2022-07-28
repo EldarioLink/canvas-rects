@@ -10,7 +10,7 @@
     <v-stage ref="stage" :config="stageSize">
       <v-layer ref="layer">
         <v-line
-          v-for="line in connections"
+          v-for="line in connectors"
           :key="line.id"
           :config="{
             stroke: 'black',
@@ -41,11 +41,12 @@
             :key="el.id"
             @click="startLine"
             :config="{
+              id: el.id,
               x: item.x + el.x,
               y: item.y + el.y,
               radius: 10,
               // eslint-disable-next-line vue/no-parsing-error
-              fill: `green`,
+              fill: fromShapeId === el.id ? `red` : `green`,
               draggable: false,
             }"
           />
@@ -75,7 +76,7 @@ export default {
         height: height,
       },
       isDragging: false,
-      connections: [],
+      connectors: [],
       drawningLine: false,
       fromShapeId: null,
     };
@@ -108,16 +109,20 @@ export default {
         return;
       }
       console.log("fdfd");
+      console.log("coords", e);
+
       if (this.fromShapeId) {
+        console.log("coords", e.target.attrs.id);
+
         const newConnector = {
           from: e.target.x(),
           to: e.target.y(),
           id: this.connectors.length,
         };
         this.connectors.push(newConnector);
-        this.setFromShapeId = null;
+        this.fromShapeId = null;
       } else {
-        this.setFromShapeId = e.target.x();
+        this.fromShapeId = e.target.attrs.id;
       }
     },
     // handleMouseDown(e) {
@@ -158,7 +163,7 @@ export default {
     getNodes() {
       let rectNodes = [
         {
-          id: Math.round(Math.random() * 10000).toString(),
+          // id: Math.round(Math.random() * 10000).toString(),
           x: +51,
           y: -5,
           radius: 10,
@@ -167,7 +172,7 @@ export default {
         },
 
         {
-          id: Math.round(Math.random() * 10000).toString(),
+          // id: Math.round(Math.random() * 10000).toString(),
           x: -4,
           y: +51,
           radius: 10,
@@ -175,7 +180,7 @@ export default {
           draggable: false,
         },
         {
-          id: Math.round(Math.random() * 10000).toString(),
+          // id: Math.round(Math.random() * 10000).toString(),
           x: +51,
           y: +105,
           radius: 10,
@@ -183,7 +188,7 @@ export default {
           draggable: false,
         },
         {
-          id: Math.round(Math.random() * 10000).toString(),
+          // id: Math.round(Math.random() * 10000).toString(),
           x: +104,
           y: +51,
           radius: 10,
