@@ -123,9 +123,9 @@ export default {
         this.toTarget = stage.getPointerPosition();
         this.parentToId = e.target.parent.children[0].attrs.id;
 
-        // if (this.toTarget === this.parentToId) {
-        //   return;
-        // }
+        if (this.parentFromId === this.parentToId) {
+          return;
+        }
 
         const newConnector = {
           coords: [
@@ -167,6 +167,13 @@ export default {
           if (item.from === element.attrs.id) {
             item.coords.splice(
               0,
+              2,
+              element.absolutePosition().x,
+              element.absolutePosition().y
+            );
+          } else if (item.to === element.attrs.id) {
+            item.coords.splice(
+              2,
               2,
               element.absolutePosition().x,
               element.absolutePosition().y
