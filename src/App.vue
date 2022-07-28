@@ -14,7 +14,7 @@
           :key="line.id"
           :config="{
             stroke: 'black',
-            points: line.points,
+            points: line.coords,
           }"
         />
         <v-group
@@ -37,7 +37,7 @@
           >
           </v-rect>
           <v-circle
-            v-for="el in getNodes.slice(0, item.activeNodes)"
+            v-for="el in item.nodes.slice(0, item.activeNodes)"
             :key="el.id"
             @click="startLine"
             :config="{
@@ -79,6 +79,7 @@ export default {
       connectors: [],
       drawningLine: false,
       fromShapeId: null,
+      oldTarget: null,
     };
   },
   methods: {
@@ -93,10 +94,11 @@ export default {
       let yPos = Math.random() * height;
 
       this.rectsList.push({
-        id: Math.round(Math.random() * 10000).toString(),
+        id: Math.round(Math.random() * 100000).toString(),
         x: xPos >= width - 150 ? Math.random() * width : xPos,
         y: yPos >= height - 150 ? Math.random() * height : yPos,
         activeNodes: 1,
+        nodes: this.getNodes(),
       });
     },
     deleteRects() {
@@ -108,20 +110,25 @@ export default {
       if (!onCircle) {
         return;
       }
-      console.log("fdfd");
-      console.log("coords", e);
+
+      console.log("coordenitc", this.connectors);
 
       if (this.fromShapeId) {
-        console.log("coords", e.target.attrs.id);
-
         const newConnector = {
-          from: e.target.x(),
-          to: e.target.y(),
-          id: this.connectors.length,
+          coords: [
+            this.oldTarget.x,
+            this.oldTarget.y,
+            e.target.attrs.x,
+            e.target.attrs.y,
+          ],
+          id: this.fromShapeId,
         };
         this.connectors.push(newConnector);
+
         this.fromShapeId = null;
+        this.oldTarget = null;
       } else {
+        this.oldTarget = e.target.attrs;
         this.fromShapeId = e.target.attrs.id;
       }
     },
@@ -158,12 +165,10 @@ export default {
     restoreLocal() {
       // to do this
     },
-  },
-  computed: {
     getNodes() {
       let rectNodes = [
         {
-          // id: Math.round(Math.random() * 10000).toString(),
+          id: Math.round(Math.random() * 10000).toString(),
           x: +51,
           y: -5,
           radius: 10,
@@ -172,7 +177,7 @@ export default {
         },
 
         {
-          // id: Math.round(Math.random() * 10000).toString(),
+          id: Math.round(Math.random() * 10000).toString(),
           x: -4,
           y: +51,
           radius: 10,
@@ -180,7 +185,7 @@ export default {
           draggable: false,
         },
         {
-          // id: Math.round(Math.random() * 10000).toString(),
+          id: Math.round(Math.random() * 10000).toString(),
           x: +51,
           y: +105,
           radius: 10,
@@ -188,7 +193,7 @@ export default {
           draggable: false,
         },
         {
-          // id: Math.round(Math.random() * 10000).toString(),
+          id: Math.round(Math.random() * 10000).toString(),
           x: +104,
           y: +51,
           radius: 10,
@@ -199,6 +204,7 @@ export default {
       return rectNodes;
     },
   },
+  computed: {},
   mounted() {
     const stage = this.$refs.stage.getNode();
 
