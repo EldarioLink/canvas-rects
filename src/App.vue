@@ -14,6 +14,7 @@
           :key="line.id"
           :config="{
             stroke: 'black',
+            strokeWidth: 4,
             points: line.coords,
           }"
         />
@@ -38,6 +39,7 @@
           >
           </v-rect>
           <v-circle
+            ref="circle"
             v-for="el in item.nodes.slice(0, item.activeNodes)"
             :key="el.id"
             @click="startLine"
@@ -116,19 +118,14 @@ export default {
         return;
       }
 
+      const stage = this.$refs.stage.getNode();
       if (this.isChosed) {
-        this.toTarget = e.target.attrs;
+        this.toTarget = stage.getPointerPosition();
         this.parentToId = e.target.parent.children[0].attrs.id;
 
         // if (this.toTarget === this.parentToId) {
         //   return;
         // }
-        console.log(
-          "rect id current, and old",
-          this.parentFromId,
-          this.parentToId
-        );
-        console.log("connection", this.toTarget, this.fromTarget);
 
         const newConnector = {
           coords: [
@@ -138,59 +135,46 @@ export default {
             this.toTarget.y,
           ],
           id: this.connectors.length,
-          from: this.fromTarget.id,
-          to: this.toTarget.id,
+          from: this.isChosed,
+          to: e.target.attrs.id,
         };
         this.connectors.push(newConnector);
+        console.log("connectors", this.connectors);
 
         this.fromTarget = null;
         this.toTarget = null;
         this.isChosed = null;
       } else {
-        this.fromTarget = e.target.attrs;
+        this.fromTarget = stage.getPointerPosition();
         this.isChosed = e.target.attrs.id;
         this.parentFromId = e.target.parent.children[0].attrs.id;
       }
     },
     updateObjects() {},
-    updateCoords() {
-      console.log("dragging");
+    updateCoords(e) {
+      let allCircles = e.target.children;
+      console.log(e.target.children[1].absolutePosition());
+      console.log(typeof allCircles);
 
-      // console.log("dragging", e);
-      // let xPos = e.target.children.attrs.x;
-      // let yPos = e.target.children.attrs.y;
+      let changedId = e.target.children.filter((circle) => {
+        // eslint-disable-next-line no-undef
+        return circle instanceof Konva.Circle;
+      });
+      console.log(changedId[0].absolutePosition().x);
 
-      // console.log("fxyf", xPos, yPos);
-      // update nodes from the new state
-      this.updateObjects();
+      this.connectors.map((item) => {
+        changedId.forEach((element) => {
+          if (item.from === element.attrs.id) {
+            item.coords.splice(
+              0,
+              2,
+              element.absolutePosition().x,
+              element.absolutePosition().y
+            );
+          }
+        });
+      });
     },
-    // handleMouseDown(e) {
-    //   // eslint-disable-next-line no-undef
-    //   const onCircle = e.target instanceof Konva.Circle;
-    //   if (!onCircle) {
-    //     return;
-    //   }
-    //   this.drawningLine = true;
-    //   this.connections.push({
-    //     id: Date.now(),
-    //     points: [e.target.x(), e.target.y()],
-    //   });
-    // },
-    // handleMouseUp(e) {
-    //   // eslint-disable-next-line no-undef
-    //   const onCircle = e.target instanceof Konva.Circle;
-    //   if (!onCircle) {
-    //     return;
-    //   }
-    //   this.drawningLine = false;
-    //   const lastLine = this.connections[this.connections.length - 1];
-    //   lastLine.points = [
-    //     lastLine.points[0],
-    //     lastLine.points[1],
-    //     e.target.x(),
-    //     e.target.y(),
-    //   ];
-    // },
     saveLocal() {
       // to do this
     },
@@ -288,8 +272,6 @@ export default {
 
       currentShape = e.target.parent;
       currentShapeId = currentShape.children[0].attrs.id;
-
-      console.log("target", e.evt);
 
       // console.log("currentshape", group);
       // show menu
