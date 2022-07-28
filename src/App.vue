@@ -21,6 +21,7 @@
           v-for="item in rectsList"
           :key="item.id"
           ref="group"
+          @dragmove="updateCoords"
           :config="{ draggable: true }"
         >
           <v-rect
@@ -46,7 +47,7 @@
               y: item.y + el.y,
               radius: 10,
               // eslint-disable-next-line vue/no-parsing-error
-              fill: fromShapeId === el.id ? `red` : `green`,
+              fill: isChosed === el.id ? `red` : `green`,
               draggable: false,
             }"
           />
@@ -78,8 +79,11 @@ export default {
       isDragging: false,
       connectors: [],
       drawningLine: false,
-      fromShapeId: null,
-      oldTarget: null,
+      fromTarget: null,
+      toTarget: null,
+      parentFromId: null,
+      parentToId: null,
+      isChosed: null,
     };
   },
   methods: {
@@ -103,6 +107,7 @@ export default {
     },
     deleteRects() {
       this.rectsList = [];
+      this.connectors = [];
     },
     startLine(e) {
       // eslint-disable-next-line no-undef
@@ -111,26 +116,53 @@ export default {
         return;
       }
 
-      console.log("coordenitc", this.connectors);
+      if (this.isChosed) {
+        this.toTarget = e.target.attrs;
+        this.parentToId = e.target.parent.children[0].attrs.id;
 
-      if (this.fromShapeId) {
+        // if (this.toTarget === this.parentToId) {
+        //   return;
+        // }
+        console.log(
+          "rect id current, and old",
+          this.parentFromId,
+          this.parentToId
+        );
+        console.log("connection", this.toTarget, this.fromTarget);
+
         const newConnector = {
           coords: [
-            this.oldTarget.x,
-            this.oldTarget.y,
-            e.target.attrs.x,
-            e.target.attrs.y,
+            this.fromTarget.x,
+            this.fromTarget.y,
+            this.toTarget.x,
+            this.toTarget.y,
           ],
-          id: this.fromShapeId,
+          id: this.connectors.length,
+          from: this.fromTarget.id,
+          to: this.toTarget.id,
         };
         this.connectors.push(newConnector);
 
-        this.fromShapeId = null;
-        this.oldTarget = null;
+        this.fromTarget = null;
+        this.toTarget = null;
+        this.isChosed = null;
       } else {
-        this.oldTarget = e.target.attrs;
-        this.fromShapeId = e.target.attrs.id;
+        this.fromTarget = e.target.attrs;
+        this.isChosed = e.target.attrs.id;
+        this.parentFromId = e.target.parent.children[0].attrs.id;
       }
+    },
+    updateObjects() {},
+    updateCoords() {
+      console.log("dragging");
+
+      // console.log("dragging", e);
+      // let xPos = e.target.children.attrs.x;
+      // let yPos = e.target.children.attrs.y;
+
+      // console.log("fxyf", xPos, yPos);
+      // update nodes from the new state
+      this.updateObjects();
     },
     // handleMouseDown(e) {
     //   // eslint-disable-next-line no-undef
