@@ -103,7 +103,7 @@ export default {
       let yPos = Math.random() * height;
 
       this.rectsList.push({
-        id: Math.round(Math.random() * 100000).toString(),
+        id: Date.now() + Math.random(),
         x: xPos >= width - 150 ? Math.random() * width : xPos,
         y: yPos >= height - 150 ? Math.random() * height : yPos,
         activeNodes: 1,
