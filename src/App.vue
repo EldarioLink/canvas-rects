@@ -6,10 +6,8 @@
       <button class="button-13" role="button" @click="deleteRects">
         Очистить
       </button>
-      <button class="button-13" role="button" @click="saveLocal">
-        Сохранить
-      </button>
-      <button class="button-13" role="button" @click="restoreLocal">
+      <button class="button-13" role="button" @click="save">Сохранить</button>
+      <button class="button-13" role="button" @click="restore">
         Восстановить
       </button>
     </div>
@@ -93,6 +91,8 @@ export default {
       parentFromId: null,
       parentToId: null,
       isChosed: null,
+      updatedRectList: [{ x: 90, y: 77, id: "67546" }],
+      newArr: [],
     };
   },
   methods: {
@@ -164,7 +164,75 @@ export default {
         // eslint-disable-next-line no-undef
         return circle instanceof Konva.Circle;
       });
-      console.log(changedId[0].absolutePosition().x);
+
+      let changedRect = e.target.children.filter((rect) => {
+        // eslint-disable-next-line no-undef
+        return rect instanceof Konva.Rect;
+      })[0];
+
+      // const newArr = this.updatedRectList.map((element) => {
+      //   if (element.id === changedRect.attrs.id) {
+      //     return {
+      //       ...element,
+      //       x: changedRect.absolutePosition().x,
+      //       y: changedRect.absolutePosition().y,
+      //       id: changedRect.attrs.id,
+      //     };
+      //   } else {
+      //     let changedRectCoords = {
+      //       x: changedRect.absolutePosition().x,
+      //       y: changedRect.absolutePosition().y,
+      //       id: changedRect.attrs.id,
+      //     };
+      //     return changedRectCoords;
+      //   }
+      // });
+      // let isExist =
+      //   this.updatedRectList.length > 0
+      //     ? this.updatedRectList.find((item) => {
+      //         console.log("ITEM", item);
+
+      //         console.log(item.id, changedRect.attrs.id);
+      //         return item.id === changedRect.attrs.id;
+      //       })
+      //     : null;
+
+      let isExist = this.updatedRectList.filter((item) => {
+        console.log("ITEM", item);
+
+        console.log(item.id, changedRect.attrs.id);
+        return item.id === changedRect.attrs.id;
+      }).length;
+
+      console.log("esixt", isExist);
+
+      // eslint-disable-next-line no-extra-boolean-cast
+      if (isExist) {
+        this.updatedRectList = this.updatedRectList.map((element) => {
+          console.log("check", element.id, changedRect.attrs.id);
+
+          if (element.id === changedRect.attrs.id) {
+            console.log("Bingo");
+            return {
+              x: changedRect.absolutePosition().x,
+              y: changedRect.absolutePosition().y,
+              id: changedRect.attrs.id,
+            };
+          } else {
+            return element;
+          }
+        });
+      } else {
+        console.log("else");
+
+        let changedRectCoords = {
+          x: changedRect.absolutePosition().x,
+          y: changedRect.absolutePosition().y,
+          id: changedRect.attrs.id,
+        };
+        this.updatedRectList.push(changedRectCoords);
+      }
+      console.log("updatedRectList", this.updatedRectList);
 
       this.connectors.map((item) => {
         changedId.forEach((element) => {
@@ -186,11 +254,26 @@ export default {
         });
       });
     },
-    saveLocal() {
-      // to do this
+    save() {
+      console.log("save");
+
+      // this.rectsList = this.rectsList.map((item) => {
+      //   this.updatedRectList.forEach((el) => {
+      //     console.log(item.id, el.id);
+      //     if (item.id === el.id) {
+      //       (item.x = el.x), (item.y = el.y);
+      //     }
+      //   });
+      // });
+      localStorage.setItem("storage", JSON.stringify(this.rectsList));
+      localStorage.setItem("connections", JSON.stringify(this.connectors));
     },
-    restoreLocal() {
-      // to do this
+    restore() {
+      let data = localStorage.getItem("storage") || "[]";
+      let conData = localStorage.getItem("connections") || "[]";
+
+      this.rectsList = JSON.parse(data);
+      this.connectors = JSON.parse(conData);
     },
     getNodes() {
       let rectNodes = [
@@ -242,8 +325,6 @@ export default {
 
     let currentShapeId;
     document.getElementById("delete-button").addEventListener("click", () => {
-      console.log("cur shape", deletedId);
-      console.log("connectors", this.connectors);
       this.connectors = this.connectors.filter((item) => {
         return item.parentFromId != deletedId && item.parentToId != deletedId;
       });
@@ -291,7 +372,6 @@ export default {
       currentShape = e.target.parent;
       currentShapeId = currentShape.children[0].attrs.id;
 
-      // console.log("currentshape", group);
       // show menu
       menuNode.style.display = "initial";
       var containerRect = stage.container().getBoundingClientRect();
