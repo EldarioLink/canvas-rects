@@ -28,7 +28,7 @@
           :key="item.id"
           ref="group"
           @dragmove="updateCoords"
-          :config="{ draggable: true }"
+          :config="{ draggable: isChosed ? false : true }"
         >
           <v-rect
             ref="rect"
@@ -73,7 +73,7 @@
 
 <script>
 const width = window.innerWidth;
-const height = window.innerHeight;
+const height = window.innerHeight - 40;
 
 export default {
   data() {
@@ -98,12 +98,6 @@ export default {
     };
   },
   methods: {
-    handleDragStart() {
-      this.isDragging = true;
-    },
-    handleDragEnd() {
-      this.isDragging = false;
-    },
     addRect() {
       let xPos = Math.random() * width;
       let yPos = Math.random() * height;
@@ -172,49 +166,14 @@ export default {
         return rect instanceof Konva.Rect;
       })[0];
 
-      // const newArr = this.updatedRectList.map((element) => {
-      //   if (element.id === changedRect.attrs.id) {
-      //     return {
-      //       ...element,
-      //       x: changedRect.absolutePosition().x,
-      //       y: changedRect.absolutePosition().y,
-      //       id: changedRect.attrs.id,
-      //     };
-      //   } else {
-      //     let changedRectCoords = {
-      //       x: changedRect.absolutePosition().x,
-      //       y: changedRect.absolutePosition().y,
-      //       id: changedRect.attrs.id,
-      //     };
-      //     return changedRectCoords;
-      //   }
-      // });
-      // let isExist =
-      //   this.updatedRectList.length > 0
-      //     ? this.updatedRectList.find((item) => {
-      //         console.log("ITEM", item);
-
-      //         console.log(item.id, changedRect.attrs.id);
-      //         return item.id === changedRect.attrs.id;
-      //       })
-      //     : null;
-
       let isExist = this.updatedRectList.filter((item) => {
-        console.log("ITEM", item);
-
-        console.log(item.id, changedRect.attrs.id);
         return item.id === changedRect.attrs.id;
       }).length;
-
-      console.log("esixt", isExist);
 
       // eslint-disable-next-line no-extra-boolean-cast
       if (isExist) {
         this.updatedRectList = this.updatedRectList.map((element) => {
-          console.log("check", element.id, changedRect.attrs.id);
-
           if (element.id === changedRect.attrs.id) {
-            console.log("Bingo");
             return {
               x: changedRect.absolutePosition().x,
               y: changedRect.absolutePosition().y,
@@ -225,8 +184,6 @@ export default {
           }
         });
       } else {
-        console.log("else");
-
         let changedRectCoords = {
           x: changedRect.absolutePosition().x,
           y: changedRect.absolutePosition().y,
@@ -234,7 +191,6 @@ export default {
         };
         this.updatedRectList.push(changedRectCoords);
       }
-      console.log("updatedRectList", this.updatedRectList);
 
       this.connectors.map((item) => {
         changedId.forEach((element) => {
@@ -257,74 +213,13 @@ export default {
       });
     },
     save() {
-      console.log("save");
-
-      // this.rectsList = this.rectsList.map((item) => {
-      //   this.updatedRectList.forEach((el) => {
-      //     console.log(item.id, el.id);
-      //     if (item.id === el.id) {
-      //       (item.x = el.x), (item.y = el.y);
-      //     }
-      //   });
-      // });
-
       this.toSave = JSON.parse(JSON.stringify(this.rectsList));
 
-      // this.toSave = this.toSave.map((el) => {
-      //   this.updatedRectList.forEach((item) => {
-      //     if (el.id === item.id) {
-      //       console.log("HPPPPP");
-      //       return {
-      //         ...item,
-      //         x: item.x,
-      //         y: item.y,
-      //         id: item.id,
-      //       };
-      //     } else {
-      //       return item;
-      //     }
-      //   });
-      // });
-      // this.toSave.forEach((item) => {
-      //   this.updatedRectList.forEach((el) => {
-      //     console.log("fpre", item.id, el.id);
-      //     if (item.id === el.id) {
-      //       this.gapArr.push({
-      //         ...item,
-      //         x: el.x,
-      //         y: el.y,
-      //       });
-      //     } else {
-      //       this.gapArr.push(item);
-      //     }
-      //   });
-      // });
-
-      /// нужно обединить toSave и updatedRectList
-      // this.gapArr = this.toSave.map((el) => {
-      //   return this.updatedRectList.map((item) => {
-      //     if (el.id === item.id) {
-      //       console.log("equal");
-      //       return {
-      //         ...el,
-      //         x: item.x,
-      //         y: item.y,
-      //         id: item.id,
-      //       };
-      //     } else {
-      //       console.log("else");
-
-      //       return el;
-      //     }
-      //   });
-      // });
       this.gapArr = this.toSave.map((el) => {
         let filteredId = this.updatedRectList.filter((item) => {
           return el.id === item.id;
         });
-        console.log("filteredId", filteredId, filteredId.x, filteredId.y);
         if (filteredId.length > 0) {
-          console.log("equal");
           return {
             ...el,
             x: filteredId[0].x,
@@ -332,23 +227,13 @@ export default {
             id: filteredId[0].id,
           };
         } else {
-          console.log("else");
-
           return el;
         }
       });
-
-      console.log("to save", this.toSave);
-      console.log("updated", this.updatedRectList);
-
-      console.log("to result", this.gapArr);
-
-      console.log("rect", this.rectsList);
       localStorage.setItem("storage", JSON.stringify(this.gapArr));
       localStorage.setItem("connections", JSON.stringify(this.connectors));
     },
     restore() {
-      console.log("rest");
       let data = localStorage.getItem("storage") || "[]";
       let conData = localStorage.getItem("connections") || "[]";
 
