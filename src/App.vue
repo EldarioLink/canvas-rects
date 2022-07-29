@@ -91,8 +91,10 @@ export default {
       parentFromId: null,
       parentToId: null,
       isChosed: null,
-      updatedRectList: [{ x: 90, y: 77, id: "67546" }],
+      updatedRectList: [],
       newArr: [],
+      toSave: [],
+      gapArr: [],
     };
   },
   methods: {
@@ -265,10 +267,88 @@ export default {
       //     }
       //   });
       // });
-      localStorage.setItem("storage", JSON.stringify(this.rectsList));
+
+      this.toSave = JSON.parse(JSON.stringify(this.rectsList));
+
+      // this.toSave = this.toSave.map((el) => {
+      //   this.updatedRectList.forEach((item) => {
+      //     if (el.id === item.id) {
+      //       console.log("HPPPPP");
+      //       return {
+      //         ...item,
+      //         x: item.x,
+      //         y: item.y,
+      //         id: item.id,
+      //       };
+      //     } else {
+      //       return item;
+      //     }
+      //   });
+      // });
+      // this.toSave.forEach((item) => {
+      //   this.updatedRectList.forEach((el) => {
+      //     console.log("fpre", item.id, el.id);
+      //     if (item.id === el.id) {
+      //       this.gapArr.push({
+      //         ...item,
+      //         x: el.x,
+      //         y: el.y,
+      //       });
+      //     } else {
+      //       this.gapArr.push(item);
+      //     }
+      //   });
+      // });
+
+      /// нужно обединить toSave и updatedRectList
+      // this.gapArr = this.toSave.map((el) => {
+      //   return this.updatedRectList.map((item) => {
+      //     if (el.id === item.id) {
+      //       console.log("equal");
+      //       return {
+      //         ...el,
+      //         x: item.x,
+      //         y: item.y,
+      //         id: item.id,
+      //       };
+      //     } else {
+      //       console.log("else");
+
+      //       return el;
+      //     }
+      //   });
+      // });
+      this.gapArr = this.toSave.map((el) => {
+        let filteredId = this.updatedRectList.filter((item) => {
+          return el.id === item.id;
+        });
+        console.log("filteredId", filteredId, filteredId.x, filteredId.y);
+        if (filteredId.length > 0) {
+          console.log("equal");
+          return {
+            ...el,
+            x: filteredId[0].x,
+            y: filteredId[0].y,
+            id: filteredId[0].id,
+          };
+        } else {
+          console.log("else");
+
+          return el;
+        }
+      });
+
+      console.log("to save", this.toSave);
+      console.log("updated", this.updatedRectList);
+
+      console.log("to result", this.gapArr);
+
+      console.log("rect", this.rectsList);
+      localStorage.setItem("storage", JSON.stringify(this.gapArr));
       localStorage.setItem("connections", JSON.stringify(this.connectors));
     },
     restore() {
+      console.log("rest");
       let data = localStorage.getItem("storage") || "[]";
       let conData = localStorage.getItem("connections") || "[]";
 
