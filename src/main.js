@@ -1,14 +1,12 @@
 import Vue from "vue";
 import App from "./App.vue";
 
-import VueKonva from "vue-konva";
-import vuetify from "./plugins/vuetify";
+import VueKonva from "vue-konva"; 
 
 Vue.use(VueKonva);
 
 Vue.config.productionTip = false;
 
-new Vue({
-  vuetify,
+new Vue({ 
   render: (h) => h(App),
 }).$mount("#app");

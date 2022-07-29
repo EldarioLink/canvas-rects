@@ -85,14 +85,12 @@ export default {
       },
       isDragging: false,
       connectors: [],
-      drawningLine: false,
       fromTarget: null,
       toTarget: null,
       parentFromId: null,
       parentToId: null,
       isChosed: null,
       updatedRectList: [],
-      newArr: [],
       toSave: [],
       gapArr: [],
     };
@@ -127,6 +125,7 @@ export default {
         this.parentToId = e.target.parent.children[0].attrs.id;
 
         if (this.parentFromId === this.parentToId) {
+          this.isChosed = null
           return;
         }
 
@@ -294,6 +293,7 @@ export default {
         return item.parentFromId != deletedId && item.parentToId != deletedId;
       });
       currentShape.removeChildren();
+      this.isChosed = null
     });
 
     document.getElementById("oneNode").addEventListener("click", () => {
@@ -350,73 +350,5 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-#menu {
-  display: none;
-  position: absolute;
-  width: 150px;
-  background-color: white;
-  box-shadow: 0 0 5px grey;
-  border-radius: 3px;
-}
-
-#menu button {
-  width: 100%;
-  background-color: white;
-  border: none;
-  margin: 0;
-  padding: 10px;
-}
-
-#menu button:hover {
-  background-color: lightgray;
-}
-
-.menu_btns {
-  display: flex;
-  justify-content: space-around;
-}
-.button-13 {
-  background-color: #fff;
-  border: 1px solid #d5d9d9;
-  border-radius: 8px;
-  box-shadow: rgba(213, 217, 217, 0.5) 0 2px 5px 0;
-  box-sizing: border-box;
-  color: #0f1111;
-  cursor: pointer;
-  display: inline-block;
-  font-family: "Amazon Ember", sans-serif;
-  font-size: 13px;
-  line-height: 29px;
-  padding: 0 10px 0 11px;
-  position: relative;
-  text-align: center;
-  text-decoration: none;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  vertical-align: middle;
-  width: 100px;
-}
-
-.button-13:hover {
-  background-color: #f7fafa;
-}
-
-.button-13:focus {
-  border-color: #008296;
-  box-shadow: rgba(213, 217, 217, 0.5) 0 2px 5px 0;
-  outline: 0;
-}
+ @import '@/css/main.css';
 </style>
