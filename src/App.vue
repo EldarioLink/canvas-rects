@@ -144,9 +144,10 @@ export default {
           id: this.connectors.length,
           from: this.isChosed,
           to: e.target.attrs.id,
+          parentFromId: this.parentFromId,
+          parentToId: this.parentToId,
         };
         this.connectors.push(newConnector);
-        console.log("connectors", this.connectors);
 
         this.fromTarget = null;
         this.toTarget = null;
@@ -159,10 +160,6 @@ export default {
     },
     updateObjects() {},
     updateCoords(e) {
-      let allCircles = e.target.children;
-      console.log(e.target.children[1].absolutePosition());
-      console.log(typeof allCircles);
-
       let changedId = e.target.children.filter((circle) => {
         // eslint-disable-next-line no-undef
         return circle instanceof Konva.Circle;
@@ -241,8 +238,15 @@ export default {
     // setup menu
     var menuNode = document.getElementById("menu");
     let currentShape;
+    let deletedId;
+
     let currentShapeId;
     document.getElementById("delete-button").addEventListener("click", () => {
+      console.log("cur shape", deletedId);
+      console.log("connectors", this.connectors);
+      this.connectors = this.connectors.filter((item) => {
+        return item.parentFromId != deletedId && item.parentToId != deletedId;
+      });
       currentShape.removeChildren();
     });
 
@@ -283,7 +287,7 @@ export default {
         // if we are on empty place of the stage we will do nothing
         return;
       }
-
+      deletedId = e.target.attrs.id;
       currentShape = e.target.parent;
       currentShapeId = currentShape.children[0].attrs.id;
 
