@@ -212,6 +212,9 @@ export default {
       });
     },
     save() {
+      if(!this.rectsList.length){
+        return
+      }
       this.toSave = JSON.parse(JSON.stringify(this.rectsList));
 
       this.gapArr = this.toSave.map((el) => {
