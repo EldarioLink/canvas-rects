@@ -1,5 +1,5 @@
 # canvas
-
+App is used vue.js && konva.js
 ## Project setup
 ```
 npm install
