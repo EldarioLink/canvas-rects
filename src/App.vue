@@ -14,15 +14,7 @@
 
     <v-stage ref="stage" :config="stageSize">
       <v-layer ref="layer">
-        <v-line
-          v-for="line in connectors"
-          :key="line.id"
-          :config="{
-            stroke: 'black',
-            strokeWidth: 4,
-            points: line.coords,
-          }"
-        />
+     
         <v-group
           v-for="item in rectsList"
           :key="item.id"
@@ -59,6 +51,15 @@
             }"
           />
         </v-group>
+           <v-line
+          v-for="line in connectors"
+          :key="line.id"
+          :config="{
+            stroke: 'black',
+            strokeWidth: 4,
+            points: line.coords,
+          }"
+        />
       </v-layer>
     </v-stage>
     <div id="menu">
